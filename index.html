@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BoxUp Order Tracking</title>
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#16311f">
+<meta name="robots" content="noindex">
+<style>
+:root{--g:#16311f;--g2:#1e7b3c;--red:#c8102e;--ink:#1b1f1c;--mu:#6b716c;--ln:#e8e5dc;--bg:#f6f4ee}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,Segoe UI,system-ui,-apple-system,Arial,sans-serif}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+[hidden]{display:none!important}
+
+/* sign in */
+.login{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh}
+.login .pic{position:relative;background:#fff7e1;overflow:hidden}
+.login .pic video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.login .pic:after{display:none}
+.login .pic p{position:absolute;left:36px;right:36px;bottom:30px;z-index:1;color:#16311f;font-size:20px;font-weight:700;margin:0;text-align:center}
+.login .frm{display:flex;flex-direction:column;justify-content:center;padding:40px 9vw;background:#fff}
+.login h1{margin:18px 0 4px;font-size:28px}
+.login .s{color:var(--mu);margin-bottom:24px}
+.fld{display:block;margin-bottom:14px}
+.fld span{display:block;font-size:12.5px;font-weight:700;color:var(--mu);margin-bottom:6px;letter-spacing:.3px}
+.fld input{width:100%;border:1.5px solid var(--ln);border-radius:10px;padding:13px 14px;font-size:16px;outline:0;background:#fff}
+.fld input:focus{border-color:var(--g2)}
+.go{width:100%;border:0;background:var(--g);color:#fff;border-radius:10px;padding:15px;font-weight:800;font-size:16px}
+.err{color:var(--red);font-weight:600;font-size:13.5px;margin:-4px 0 12px}
+.fine{font-size:12.5px;color:#888;margin-top:16px}
+
+/* top bar */
+.nav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:22px;padding:10px 32px}
+.nav img{height:42px;display:block}
+.nav .x{color:#aaa;font-weight:800}
+.nav .co{font:800 19px Inter,Arial;color:#0b4f8a;white-space:nowrap}
+.nav .sp{flex:1}
+.nav a{text-decoration:none;font-weight:600;font-size:14.5px;cursor:pointer;outline:none}
+.nav a.on{color:var(--red)}
+.nav .out{border:1px solid var(--ln);background:#fff;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px}
+
+/* hero */
+.hero{position:relative;height:360px;overflow:hidden;background:#0b1a12}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(8,20,14,.88),rgba(8,20,14,.45) 55%,rgba(8,20,14,.05))}
+.hc{position:absolute;z-index:2;left:56px;top:60px;right:20px;color:#fff;max-width:640px}
+.hc small{letter-spacing:2px;font-weight:700;color:#e9d3a1;font-size:12px}
+.hc h1{font:800 38px Inter,Arial;margin:8px 0 6px}
+.hc p{margin:0 0 20px;color:#dfe7df}
+.srch{display:flex;background:#fff;border-radius:12px;padding:6px;position:relative}
+.srch input{flex:1;border:0;outline:0;padding:11px 12px;font-size:16px;min-width:0;background:transparent;color:var(--ink);caret-color:var(--ink)}
+.srch input::placeholder{color:#8a8f8b}
+.srch input::selection{background:#cfe3d5;color:var(--ink)}
+.srch button{border:0;background:var(--red);color:#fff;border-radius:9px;padding:0 26px;font-weight:800}
+.sug{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.25);overflow:hidden;z-index:5}
+.sug div{padding:10px 14px;border-bottom:1px solid #f1f1f1;cursor:pointer;font-size:14px}
+.sug div:hover{background:#f3f8f2}
+.sug small{display:block;color:var(--mu);font-size:12px;letter-spacing:0;font-weight:400}
+.sug div{color:var(--ink)}
+.vbtn{position:absolute;z-index:2;right:24px;bottom:18px;border:0;background:rgba(0,0,0,.55);color:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:24px 24px 50px}
+.kp{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.kp button{background:#fff;border:2px solid transparent;border-radius:14px;padding:14px 16px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.kp button.on{border-color:var(--g)}
+.kp b{display:block;font:800 28px Inter,Arial}
+.kp span{font-size:12.5px;color:var(--mu);font-weight:600}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar h2{margin:0;font-size:19px;flex:1}
+.btn{border:1px solid var(--ln);background:#fff;border-radius:9px;padding:9px 14px;font-weight:700;font-size:13.5px}
+.btn.d{background:var(--g);border-color:var(--g);color:#fff}
+.tbl{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tr{display:grid;grid-template-columns:1.1fr 1.1fr 1.7fr 1fr .9fr 1.1fr 1fr;padding:12px 16px;font-size:14px;align-items:center;border-top:1px solid #f1efe8}
+.th{background:#f7f5ef;font-weight:700;color:#777;font-size:11.5px;letter-spacing:.5px;border-top:0}
+.tr.row{cursor:pointer}.tr.row:hover{background:#fafaf6}
+.st{display:inline-block;border-radius:999px;padding:3px 10px;font-weight:700;font-size:12px;white-space:nowrap}
+.s-booked{background:#eee;color:#555}.s-transit{background:#e2eefa;color:#1d5c96}.s-ofd{background:#fff3d6;color:#9a6400}.s-delivered{background:#e3f4e8;color:#1e7b3c}.s-rto{background:#fbe4e2;color:#b3261e}
+.lnk{color:var(--red);font-weight:700;font-size:13.5px}
+.pager{display:flex;justify-content:center;gap:8px;padding:14px}
+.pager button{border:1px solid var(--ln);background:#fff;border-radius:8px;padding:6px 12px;font-weight:700}
+.pager button:disabled{opacity:.4}
+.empty{padding:30px;text-align:center;color:var(--mu)}
+
+/* shipment */
+.det{max-width:980px;margin:0 auto;padding:22px 24px 60px}
+.back{border:0;background:none;padding:0;font-size:14px;margin-bottom:18px;color:#333}
+.card{background:#fff;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #eee;padding-bottom:16px;gap:12px}
+.cr{display:flex;gap:12px;align-items:center}
+.cr i{width:46px;height:46px;border-radius:8px;display:grid;place-items:center;color:#fff;font:800 13px Inter,Arial;font-style:normal;flex:none}
+.cr div{font-size:13px;color:#555}.cr b{font-size:14.5px;color:var(--ink)}
+.cp{border:0;background:none;padding:0 0 0 4px;color:#777}
+.ref{text-align:right;font-size:13px;color:#555}.ref b{display:block;color:var(--ink);font-size:15px}
+.ban{border-radius:8px;padding:20px 18px;font-weight:800;font-size:17px;margin:16px 0 22px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.ban span{font-weight:600;font-size:13px;color:#555}
+.b-delivered{background:#edf6ef}.b-transit,.b-ofd{background:#eef4fb}.b-booked{background:#f1f1f1}.b-rto{background:#fdecea}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.steps div{border-top:4px solid #ddd;padding-top:12px;font-size:14px;display:flex;gap:8px;align-items:center;color:#999}
+.steps div.on{border-color:#2fa84f;color:var(--ink)}
+.ok{width:18px;height:18px;border-radius:50%;background:#ccc;color:#fff;display:grid;place-items:center;font-size:11px;flex:none}
+.on .ok{background:#2fa84f}
+.od{border:1px solid #dbe6f5;background:#f7faff;border-radius:999px;display:flex;justify-content:space-between;gap:10px;padding:8px 16px;font-size:12.5px;margin:22px 0 6px;flex-wrap:wrap}
+.sec{font:700 19px Inter,Arial;margin:26px 0 16px;display:flex;justify-content:space-between;align-items:center}
+.sec button{border:0;background:none;font-size:13px}
+.prog{display:grid;grid-template-columns:1.5fr 1fr;gap:30px;align-items:start}
+.ev{position:relative;padding:0 0 22px 34px}
+.ev:before{content:"";position:absolute;left:8px;top:8px;bottom:-2px;width:2px;background:#ddd}
+.ev:last-child:before{display:none}
+.ev i{position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:#444;color:#fff;font-size:10px;display:grid;place-items:center;font-style:normal}
+.ev b{font-size:15px}.ev span{color:#666;font-size:14px;margin-left:10px;padding-left:10px;border-left:1px solid #ccc}
+.ev p{margin:4px 0 0;color:#777;font-size:13.5px}
+.pod{border:1px solid #eee;border-radius:12px;padding:14px}
+.pod img{width:100%;border-radius:8px;height:190px;object-fit:cover;object-position:30% 60%;cursor:zoom-in}
+.pod b{display:block;margin-bottom:8px}.pod small{color:#666}
+.nopod{color:#888;font-size:13.5px;background:#fafafa;border-radius:8px;padding:30px 12px;text-align:center}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+.info div{background:#faf9f5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+.info small{display:block;color:#888;font-size:11.5px;font-weight:700;letter-spacing:.4px}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:grid;place-items:center;padding:20px}
+.zoom img{max-width:100%;max-height:100%;border-radius:8px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b1f1c;color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:60}
+.foot{text-align:center;color:#999;font-size:12.5px;padding:20px}
+.pop{position:fixed;inset:0;z-index:70;background:rgba(10,20,14,.55);display:grid;place-items:center;padding:16px;animation:fd .15s}
+@keyframes fd{from{opacity:0}}
+.sup{position:relative;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.px{position:absolute;top:12px;right:12px;border:0;background:#f1efe8;border-radius:50%;width:34px;height:34px;font-size:15px;color:#555}
+.who{display:flex;gap:16px;align-items:center;padding-bottom:18px;border-bottom:1px solid #eee}
+.av{width:64px;height:64px;border-radius:50%;background:var(--g);color:#e9d3a1;display:grid;place-items:center;font:800 24px Inter,Arial;flex:none}
+.who small{font-size:11.5px;font-weight:800;letter-spacing:.8px;color:#9a7330}.who h2{margin:2px 0;font-size:24px}.who span{color:var(--mu);font-size:14px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.ab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;border-radius:12px;padding:12px 6px;font-weight:800;font-size:14px}
+.ab i{font-style:normal;font-size:22px}
+.ab.call{background:#e8f1ec;color:var(--g)}.ab.wa{background:#25d366;color:#fff}.ab.ml{background:#eef3fb;color:#1d5c96}
+.rows{border:1px solid #eee;border-radius:12px;overflow:hidden}
+.rw{display:flex;gap:14px;align-items:center;padding:13px 16px;text-decoration:none;border-top:1px solid #f1f1f1}
+.rw:first-child{border-top:0}.rw:hover{background:#fafaf6}
+.rw i{font-style:normal;font-size:20px;width:26px;text-align:center;flex:none}
+.rw div{flex:1;min-width:0}.rw small{display:block;font-size:11px;font-weight:800;letter-spacing:.6px;color:#888}
+.rw b{font-size:15px;color:#1d5c96;word-break:break-word}.rw b.ad{font-weight:600;font-size:13.5px;color:var(--ink);line-height:1.45}
+.rw em{font-style:normal;color:var(--red);font-weight:700;font-size:13px;white-space:nowrap}
+.hrs{margin-top:14px;color:var(--mu);font-size:13.5px;text-align:center}
+
+@media (max-width:820px){
+  .login{grid-template-columns:1fr}.login .pic{min-height:0;height:min(100vw,52vh)}.login .pic p{display:none}
+  .nav{padding:10px 16px;gap:10px}.nav img{height:34px}.nav .co{font-size:16px}.nav a{display:none}.nav a.hm{display:block}
+  .hero{height:auto;min-height:330px}.hc{position:relative;left:auto;right:auto;top:auto;margin:0 16px;padding:26px 0 56px;max-width:none}.hc h1{font-size:26px}.srch input{font-size:15px}.srch button{padding:0 16px}
+  .kp{grid-template-columns:repeat(3,1fr)}.kp button:nth-child(n+4){grid-column:span 1}
+  .wrap{padding:16px}
+  .th{display:none}
+  .tr{grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px}
+  .tr > :nth-child(1){font-weight:700}.tr > :nth-child(2){grid-column:2;grid-row:1;justify-self:end;color:#777;font-size:12.5px}
+  .tr > :nth-child(3){grid-column:1}.tr > :nth-child(4){display:none}.tr > :nth-child(5){display:none}
+  .tr > :nth-child(6){grid-column:2;grid-row:2;justify-self:end}.tr > :nth-child(7){display:none}
+  .kp{grid-template-columns:1fr 1fr}.kp button:first-child{grid-column:span 2}
+  .card{padding:16px}.steps{grid-template-columns:repeat(2,1fr);gap:14px}.prog{grid-template-columns:1fr}.info{grid-template-columns:1fr 1fr}
+}
+.load{padding:60px 20px;text-align:center;color:var(--mu)}
+.spin{width:34px;height:34px;border:3px solid #ddd;border-top-color:var(--g2);border-radius:50%;margin:0 auto 12px;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.upd{font-size:12.5px;color:var(--mu);font-weight:600}
+.go:disabled{opacity:.6}
+.pods{display:grid;gap:8px}
+.pod a{display:block}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+'use strict';
+/* BoxUp company tracking. Each company signs in with its own 9-character access code
+   (Client Codes tab in the BoxUp Label Log sheet) and sees only its own orders. */
+const API = 'https://script.google.com/macros/s/AKfycbxkWlpzmubWJwgFQF7cCDAegDHDFpst-j2AnoLVrk3rVnZL9CuOukEIC_GR43gUlL7e/exec';
+const LOGO = 'logo.png', SIGNVID = 'signin.mp4', VIDEO = 'hero.mp4';
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function api(body, ms){
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), ms || 60000);
+  try {
+    const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(Object.assign({ action:'ct' }, body)), signal: ac.signal });
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+/* ---------- saved sign-ins (one per company on this device) ---------- */
+const SKEY = 'boxup.track.v1';
+let MEM = {};
+const store = { get(){ try { return JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch(e){ return MEM; } }, set(v){ MEM = v; try { localStorage.setItem(SKEY, JSON.stringify(v)); } catch(e){} } };
+const sessOf = k => store.get()[k];
+function saveSess(k, patch){ const s = store.get(); s[k] = Object.assign(s[k] || {}, patch); store.set(s); return s[k]; }
+function dropSess(k){ const s = store.get(); delete s[k]; store.set(s); }
+
+/* ---------- couriers ---------- */
+function courier(n){
+  const s = String(n || '');
+  const M = [[/anjani/i,'Shree Anjani Courier','SA','#ff7043'],[/dtdc/i,'DTDC','DTDC','#c8102e'],[/porter/i,'Porter','PO','#1f4fd1'],[/in.?house|boxup/i,'BoxUp delivery','BX','#16311f'],
+    [/delhivery/i,'Delhivery','DL','#222'],[/blue ?dart/i,'Blue Dart','BD','#0b4f8a'],[/professional/i,'The Professional Couriers','PC','#5b2b8c'],[/trackon/i,'Trackon','TR','#e65100'],[/ekart/i,'Ekart','EK','#2874f0'],[/xpressbees/i,'XpressBees','XB','#f9a825']];
+  for (const m of M) if (m[0].test(s)) return [m[1], m[2], m[3]];
+  return [s || 'Courier', (s.replace(/[^A-Za-z]/g, '').slice(0, 2) || 'CR').toUpperCase(), '#555'];
+}
+const local = c => /^(Porter|BoxUp delivery)$/.test(c[0]);
+
+const ST_TXT = { booked:'Booked', transit:'In Transit', ofd:'Out for Delivery', delivered:'Delivered', rto:'Returned (RTO)' };
+const fmt = d => d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+const fmtT = d => d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+const fmtDT = d => fmt(d) + ' · ' + fmtT(d);
+const when = (ms, txt) => ms ? fmtDT(new Date(ms)) : (txt || '');
+const whenD = (ms, txt) => ms ? fmt(new Date(ms)) : (txt || '');
+
+/* ---------- orders: from the sheet, kept on this device for a fast start ---------- */
+const DATA = {}, META = {};
+const OKEY = k => 'boxup.track.orders.' + k;
+function loadCached(k){
+  if (DATA[k]) return true;
+  try { const c = JSON.parse(localStorage.getItem(OKEY(k)) || 'null'); if (c && c.orders) { DATA[k] = c.orders; META[k] = { v:c.v, at:c.at }; return true; } } catch(e){}
+  return false;
+}
+let busy = false;
+async function refresh(k, force){
+  const s = sessOf(k); if (!s || busy) return;
+  busy = true;
+  try {
+    const d = await api({ op:'orders', code:s.code, since: force ? '' : (META[k] && META[k].v) || '' }, 90000);
+    if (!d.ok) { if (d.signout) { dropSess(k); toast('Your access code has changed. Please sign in again.'); route(); } return; }
+    if (d.company) saveSess(k, { name:d.company.name, contact:d.company.contact });
+    META[k] = { v:d.v, at:Date.now() };
+    if (!d.same) {
+      DATA[k] = d.orders || [];
+      try { localStorage.setItem(OKEY(k), JSON.stringify({ orders:DATA[k], v:d.v, at:Date.now() })); } catch(e){}
+      redraw(k);
+    } else stamp();
+  } catch(e) { if (force) toast('Could not reach BoxUp. Check the internet and try again.'); }
+  finally { busy = false; }
+}
+function stamp(){ const u = $('#upd'), k = CUR; if (u && META[k] && META[k].at) u.textContent = 'Updated ' + fmtT(new Date(META[k].at)); }
+let CUR = '', VIEW = '';
+function redraw(k){ if (k !== CUR) return; if (VIEW === 'home') { kpis(k); table(k); stamp(); } else if (VIEW === 'ship') route(true); }
+setInterval(() => { if (CUR && !document.hidden) refresh(CUR); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && CUR) refresh(CUR); });
+
+/* ---------- routing: #/company , #/company/AWB-or-order ---------- */
+function route(keepScroll){
+  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+  const key = (parts[0] || '').toLowerCase();
+  if (!keepScroll) window.scrollTo(0, 0);
+  CUR = ''; VIEW = '';
+  if (!key) {
+    const ks = Object.keys(store.get());
+    if (ks.length === 1) { location.replace('#/' + ks[0]); return; }
+    return codePage();
+  }
+  if (!sessOf(key)) return codePage(key);
+  CUR = key;
+  if (!loadCached(key)) {
+    VIEW = 'wait';
+    $('#app').innerHTML = navHtml(key) + '<div class="load"><div class="spin"></div>Loading your orders…</div>';
+    bindNav(key);
+    refresh(key, true).then(() => { if (CUR === key && VIEW === 'wait') route(true); });
+    return;
+  }
+  if (parts[1]) shipPage(key, parts[1]); else homePage(key);
+  if (!META[key] || !META[key].at || Date.now() - META[key].at > 20000) refresh(key);
+}
+window.addEventListener('hashchange', () => route());
+
+/* ---------- sign in: the 9-character access code decides which company page opens ---------- */
+function codePage(want){
+  $('#app').innerHTML = `<div class="login"><div class="pic"><video src="${SIGNVID}" autoplay muted loop playsinline disablepictureinpicture disableremoteplayback></video><p>Delivering thoughtful moments, tracked from our warehouse to your doorstep.</p></div>
+  <form class="frm" id="lf"><img src="${LOGO}" alt="BoxUp" style="height:74px;align-self:flex-start"><h1>Track your company's orders</h1>
+  <div class="s">Enter the 9-character access code BoxUp shared with your company.</div>
+  <label class="fld"><span>ACCESS CODE</span><input id="lc" maxlength="11" placeholder="e.g. AB3 K7M 9QX" autocomplete="off" autocapitalize="characters" spellcheck="false" style="font:700 22px Inter,Arial;letter-spacing:4px;text-transform:uppercase"></label>
+  <div class="err" id="le" hidden></div>
+  <button class="go" id="lg">View my orders →</button>
+  <div class="fine">Each Company Has Its Own Code And Can See Only Its Own Orders. Lost Your Code? Please Contact Your Sales Person.</div></form></div>`;
+  const v = document.querySelector('.login video'); v.controls = false; v.play && v.play().catch(() => {});
+  const inp = $('#lc'); inp.focus();
+  inp.oninput = () => { const x = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9); inp.value = x.replace(/(.{3})(?=.)/g, '$1 '); $('#le').hidden = true; };
+  $('#lf').onsubmit = async e => {
+    e.preventDefault();
+    const code = inp.value.replace(/\s+/g, '').toUpperCase(), er = $('#le'), b = $('#lg');
+    if (code.length !== 9) { er.hidden = false; er.textContent = 'The code has 9 letters and numbers.'; return; }
+    b.disabled = true; b.textContent = 'Checking…';
+    try {
+      const d = await api({ op:'login', code }, 45000);
+      if (!d.ok) { er.hidden = false; er.textContent = d.error || 'This code is not right. Check it and try again.'; return; }
+      const k = d.company.key;
+      saveSess(k, { code, name:d.company.name, contact:d.company.contact, at:Date.now() });
+      delete DATA[k]; delete META[k]; try { localStorage.removeItem(OKEY(k)); } catch(x){}
+      if (location.hash === '#/' + k) route(); else location.hash = '#/' + k;
+    } catch(x) { er.hidden = false; er.textContent = 'Could not reach BoxUp. Check the internet and try again.'; }
+    finally { b.disabled = false; b.textContent = 'View my orders →'; }
+  };
+}
+const coName = k => (sessOf(k) || {}).name || k;
+function navHtml(key){
+  return `<div class="nav"><a class="hm" href="#/${key}"><img src="${LOGO}" alt="BoxUp"></a><span class="x">×</span><span class="co">${esc(coName(key))}</span><span class="sp"></span>
+    <a id="navHelp">Support</a><button class="out" id="out">Sign out</button></div>`;
+}
+function bindNav(key){
+  $('#navHelp').onclick = () => supportPop(key);
+  $('#out').onclick = () => { dropSess(key); delete DATA[key]; delete META[key]; try { localStorage.removeItem(OKEY(key)); } catch(e){} location.hash = '#/'; route(); };
+}
+
+/* ---------- company home ---------- */
+let FILTER = 'all', PAGE = 0;
+const L_ = k => DATA[k] || [];
+const awbsOf = o => (o.awbs && o.awbs.length) ? o.awbs : [];
+const keyOf = o => awbsOf(o)[0] || o.id;
+function homePage(key){
+  VIEW = 'home';
+  const nm = coName(key);
+  $('#app').innerHTML = navHtml(key) + `
+  <div class="hero"><video id="vid" src="${VIDEO}" autoplay muted loop playsinline></video>
+    <div class="hc"><small>BOXUP LUXURY GIFTING · ${esc(nm.toUpperCase())}</small><h1>Track your gifts in real time</h1><p>From packing to doorstep, every box for ${esc(nm)} in one place.</p>
+    <form class="srch" id="sf"><input id="q" placeholder="Enter AWB, order ID or recipient name" autocomplete="off"><button>Track</button><div class="sug" id="sug" hidden></div></form></div>
+    <button class="vbtn" id="vb">❚❚ Pause video</button></div>
+  <div class="wrap">
+    <div class="kp" id="kp"></div>
+    <div class="bar"><h2 id="lt"></h2><span class="upd" id="upd"></span><button class="btn" id="rf" title="Check for new updates">↻</button><button class="btn d" id="dl">⬇ Download report</button></div>
+    <div class="tbl" id="tbl"></div>
+  </div><div class="foot">BoxUp Luxury Gifting · 4th Floor, No. 19/3, off Kanakapura Main Road, Bengaluru 560111</div>`;
+  bindNav(key);
+  const v = $('#vid'); $('#vb').onclick = () => { if (v.paused) { v.play(); $('#vb').textContent = '❚❚ Pause video'; } else { v.pause(); $('#vb').textContent = '▶ Play video'; } };
+  $('#kp').onclick = e => { const b = e.target.closest('button'); if (!b) return; FILTER = FILTER === b.dataset.f ? 'all' : b.dataset.f; PAGE = 0; kpis(key); table(key); };
+  $('#dl').onclick = () => report(key);
+  $('#rf').onclick = () => { toast('Checking for updates…'); refresh(key, true); };
+  const find = q => { q = q.trim().toLowerCase(); if (!q) return []; return L_(key).filter(o => awbsOf(o).some(a => a.toLowerCase().includes(q)) || o.id.toLowerCase().includes(q) || String(o.name).toLowerCase().includes(q)).slice(0, 6); };
+  $('#q').oninput = () => { const r = find($('#q').value), s = $('#sug');
+    s.hidden = !$('#q').value.trim(); s.innerHTML = r.length ? r.map(o => `<div data-k="${esc(keyOf(o))}"><b>${esc(awbsOf(o)[0] || o.id)}</b> · ${esc(o.name)}<small>Order ${esc(o.id)} · ${esc(o.city)} · ${ST_TXT[o.st]}</small></div>`).join('') : '<div style="color:#888;cursor:default">No order found for ' + esc(nm) + '</div>'; };
+  $('#sug').onclick = e => { const d = e.target.closest('[data-k]'); if (d) location.hash = '#/' + key + '/' + encodeURIComponent(d.dataset.k); };
+  $('#sf').onsubmit = e => { e.preventDefault(); const r = find($('#q').value); if (r.length) location.hash = '#/' + key + '/' + encodeURIComponent(keyOf(r[0])); else toast('No order with “' + esc($('#q').value) + '” for ' + esc(nm)); };
+  document.onclick = e => { if (!e.target.closest('.srch') && $('#sug')) $('#sug').hidden = true; };
+  kpis(key); table(key); stamp();
+}
+function kpis(key){
+  const L = L_(key), cnt = s => L.filter(o => o.st === s).length;
+  $('#kp').innerHTML = `<button data-f="all"><b>${L.length}</b><span>Total orders</span></button>
+      <button data-f="booked"><b style="color:#555">${cnt('booked')}</b><span>Booked</span></button>
+      <button data-f="transit"><b style="color:#1d5c96">${cnt('transit')}</b><span>In transit</span></button>
+      <button data-f="ofd"><b style="color:#9a6400">${cnt('ofd')}</b><span>Out for delivery</span></button>
+      <button data-f="delivered"><b style="color:#1e7b3c">${cnt('delivered')}</b><span>Delivered</span></button>`;
+}
+function table(key){
+  const L = L_(key).filter(o => FILTER === 'all' || o.st === FILTER), per = 20, pages = Math.max(1, Math.ceil(L.length / per));
+  if (PAGE >= pages) PAGE = pages - 1;
+  document.querySelectorAll('#kp button').forEach(b => b.classList.toggle('on', b.dataset.f === FILTER && FILTER !== 'all'));
+  $('#lt').textContent = (FILTER === 'all' ? 'All orders' : ST_TXT[FILTER]) + ' · ' + L.length;
+  const rows = L.slice(PAGE * per, PAGE * per + per).map(o => `<div class="tr row" data-k="${esc(keyOf(o))}"><span>${esc(o.id)}</span><span>${esc(awbsOf(o).join(', ') || '—')}</span><span>${esc(o.name)}</span><span>${esc(o.city)}</span><span>${esc(whenD(o.at, o.atx))}</span><span><i class="st s-${o.st}">${ST_TXT[o.st]}</i></span><span class="lnk">View tracking →</span></div>`).join('');
+  $('#tbl').innerHTML = `<div class="tr th"><span>ORDER ID</span><span>AWB</span><span>RECIPIENT</span><span>CITY</span><span>BOOKED</span><span>STATUS</span><span></span></div>` + (rows || `<div class="empty">${L_(key).length ? 'No orders here.' : 'No orders yet. They appear here as soon as BoxUp prints the labels.'}</div>`) +
+    (pages > 1 ? `<div class="pager"><button id="pp" ${PAGE ? '' : 'disabled'}>‹ Back</button><span style="align-self:center;font-size:13px;color:#777">Page ${PAGE + 1} of ${pages}</span><button id="pn" ${PAGE < pages - 1 ? '' : 'disabled'}>Next ›</button></div>` : '');
+  $('#tbl').onclick = e => {
+    if (e.target.id === 'pp') { PAGE--; table(key); return; } if (e.target.id === 'pn') { PAGE++; table(key); return; }
+    const r = e.target.closest('.row'); if (r) location.hash = '#/' + key + '/' + encodeURIComponent(r.dataset.k);
+  };
+}
+function report(key){
+  const L = L_(key); if (!L.length) { toast('No orders to download yet'); return; }
+  const rows = [['Order ID','AWB','Courier','Recipient','City','State','Pincode','Boxes','Booked','Status','Last update']].concat(L.map(o => {
+    const last = (o.ev || []).filter(e => e.t).sort((a, b) => (b.at || 0) - (a.at || 0))[0];
+    return [o.id, awbsOf(o).join(', '), courier(o.cr)[0], o.name, o.city, o.state, o.pin, o.boxes, when(o.at, o.atx), ST_TXT[o.st], last ? last.t + (!last.nt && (last.at || last.x) ? ' · ' + when(last.at, last.x) : '') : ''];
+  }));
+  const csv = rows.map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type:'text/csv' }));
+  a.download = coName(key) + ' orders - BoxUp ' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+  toast('Report downloaded');
+}
+
+/* ---------- shipment page (DTDC style) ---------- */
+function shipPage(key, k){
+  VIEW = 'ship';
+  const nm = coName(key), kk = k.toLowerCase();
+  const o = L_(key).find(x => awbsOf(x).some(a => a.toLowerCase() === kk) || x.id.toLowerCase() === kk);
+  if (!o) { $('#app').innerHTML = navHtml(key) + `<div class="det"><div class="card empty">No ${esc(nm)} order with “${esc(k)}”. <br><br><a href="#/${key}">← Back to my orders</a></div></div>`; bindNav(key); return; }
+  const c = courier(o.cr), lc = local(c);
+  const ev = (o.ev || []).filter(e => e.t).map((e, i) => Object.assign({ i }, e))
+    .sort((a, b) => (b.at || 0) - (a.at || 0) || b.i - a.i);
+  const lvl = { booked:0, transit:2, ofd:3, delivered:4, rto:2 }[o.st];
+  const steps = [['Picked Up','📦'],['In Transit','🚚'],['Out for Delivery','🛵'],['Delivered','🎁']];
+  const last = ev[0] || {};
+  const lastW = last.nt ? '' : when(last.at, last.x);
+  const banner = o.st === 'delivered' ? `Delivered <span>${o.recv ? 'Received by: ' + esc(o.recv) + ' · ' : ''}${esc(lastW)}</span>`
+    : o.st === 'rto' ? `Returned to BoxUp <span>${esc(lastW)}</span>`
+    : o.st === 'booked' ? `Booked · waiting for pickup <span>Label printed ${esc(when(o.at, o.atx))}</span>`
+    : `${ST_TXT[o.st]} <span>${lastW ? 'Last update: ' + esc(lastW) : ''}</span>`;
+  const p = ((sessOf(key) || {}).contact) || {};
+  const pods = (o.pod || []);
+  const podHtml = pods.length ? `<div class="pods">${pods.map(id => `<a href="https://drive.google.com/file/d/${esc(id)}/view" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=${esc(id)}&sz=w800" alt="Proof of delivery" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'nopod',textContent:'Open the POD file'}))"></a>`).join('')}</div><small>Tap to open full size</small>`
+    : `<div class="nopod">${o.st === 'delivered' ? 'POD will appear here when the courier uploads it.' : 'Shown here after delivery.'}</div>`;
+  $('#app').innerHTML = navHtml(key) + `<div class="det"><button class="back" id="bk">← Back to my orders</button><div class="card">
+    <div class="top"><div class="cr"><i style="background:${c[2]}">${esc(c[1])}</i><div><b>${esc(c[0])}</b><br>${awbsOf(o).length ? 'AWB: ' + esc(awbsOf(o).join(', ')) + '<button class="cp" id="cp" title="Copy AWB">⧉</button>' : 'BoxUp delivery partner'}</div></div>
+      <div class="ref">Order ID<b>${esc(o.id)}</b></div></div>
+    <div class="ban b-${o.st}">${banner}</div>
+    <div class="steps">${steps.map((s, i) => `<div class="${i < lvl ? 'on' : ''}"><span class="ok">✓</span>${s[1]} ${s[0]}</div>`).join('')}</div>
+    <div class="od"><span><b>Origin:</b> BENGALURU, 560111, INDIA</span><span><b>Destination:</b> ${esc(String(o.city || '').toUpperCase())}${o.pin ? ', ' + esc(o.pin) : ''}${o.state ? ', ' + esc(String(o.state).toUpperCase()) : ''}, INDIA</span></div>
+    <div class="info"><div><small>RECIPIENT</small>${esc(o.name)}</div><div><small>BOXES</small>${esc(o.boxes)}</div><div><small>BOOKED ON</small>${esc(whenD(o.at, o.atx))}</div></div>
+    <div class="sec">Shipment progress <button id="vm">${ev.length > 3 ? 'View more ⌄' : ''}</button></div>
+    <div class="prog"><div id="evs">${evHtml(ev, 3)}</div>
+      <div class="pod"><b>Proof of delivery</b>${podHtml}</div></div>
+  </div></div><div class="foot">Questions about this order? ${esc(p.email || 'logistics@boxupgifting.com')} · ${esc(p.phone || '+91 93640 85209')}</div>`;
+  bindNav(key);
+  $('#bk').onclick = () => location.hash = '#/' + key;
+  if ($('#cp')) $('#cp').onclick = () => { navigator.clipboard && navigator.clipboard.writeText(awbsOf(o).join(', ')).catch(() => {}); toast('AWB copied'); };
+  let all = false; $('#vm').onclick = () => { all = !all; $('#evs').innerHTML = evHtml(ev, all ? 99 : 3); $('#vm').textContent = all ? 'View less ⌃' : 'View more ⌄'; };
+}
+function evHtml(ev, n){ return ev.slice(0, n).map(e => `<div class="ev"><i>✓</i><b>${esc(e.t)}</b>${(!e.nt && (e.at || e.x)) ? `<span>${esc(when(e.at, e.x))}</span>` : ''}<p>${esc(e.p)}</p></div>`).join('') || '<div class="empty">No updates yet.</div>'; }
+
+/* ---------- support: the BoxUp contact, every line is a link ---------- */
+function supportPop(key){
+  const nm = coName(key), p = Object.assign({ name:'Prajwal Patil', role:'Senior Logistics Executive, BoxUp Luxury Gifting', phone:'+91 93640 85209', email:'logistics@boxupgifting.com',
+    addr:'4th Floor, No. 19/3, behind Metro Cash & Carry, off Kanakapura Main Road, JC Industrial Area, Yelachenahalli, Bikasipura, Bengaluru, Karnataka 560111',
+    map:'https://maps.app.goo.gl/zFeAvpAqfCoKkdCo7', web:'https://www.boxupgifting.com/', hours:'Monday to Saturday, 10 am to 7 pm · Sunday holiday' }, ((sessOf(key) || {}).contact) || {});
+  const digits = n => String(n || '').replace(/[^\d]/g, '');
+  const wa = 'https://wa.me/' + digits(p.wa || p.phone) + '?text=' + encodeURIComponent('Hi, this is ' + nm + '. I have a question about our orders.');
+  const mail = 'mailto:' + p.email + '?subject=' + encodeURIComponent(nm + ' - order query');
+  const map = p.map || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.addr));
+  const ini = (String(p.name).replace(/[^A-Za-z ]/g, '').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
+  const ov = document.createElement('div'); ov.className = 'pop';
+  ov.innerHTML = `<div class="card sup" role="dialog" aria-label="Support">
+    <button class="px" aria-label="Close">✕</button>
+    <div class="who"><div class="av">${esc(ini)}</div><div><small>YOUR BOXUP CONTACT</small><h2>${esc(p.name)}</h2><span>${esc(p.role)}</span></div></div>
+    <div class="acts">
+      <a class="ab call" href="tel:+${digits(p.phone)}"><i>📞</i>Call</a>
+      <a class="ab wa" href="${wa}" target="_blank" rel="noopener"><i>💬</i>WhatsApp</a>
+      <a class="ab ml" href="${mail}"><i>✉️</i>Email</a>
+    </div>
+    <div class="rows">
+      <a class="rw" href="tel:+${digits(p.phone)}"><i>📞</i><div><small>PHONE</small><b>${esc(p.phone)}</b></div><em>Call ›</em></a>
+      <a class="rw" href="${wa}" target="_blank" rel="noopener"><i>💬</i><div><small>WHATSAPP</small><b>${esc(p.wa || p.phone)}</b></div><em>Chat ›</em></a>
+      <a class="rw" href="${mail}"><i>✉️</i><div><small>EMAIL</small><b>${esc(p.email)}</b></div><em>Write ›</em></a>
+      <a class="rw" href="${map}" target="_blank" rel="noopener"><i>📍</i><div><small>ADDRESS</small><b class="ad">${esc(p.addr)}</b></div><em>Map ›</em></a>
+      ${p.web ? `<a class="rw" href="${p.web}" target="_blank" rel="noopener"><i>🌐</i><div><small>WEBSITE</small><b>${esc(p.web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</b></div><em>Visit ›</em></a>` : ''}
+    </div>${p.hours ? `<div class="hrs">🕘 ${esc(p.hours)}</div>` : ''}</div>`;
+  const close = () => { ov.remove(); document.removeEventListener('keydown', k1); };
+  const k1 = e => { if (e.key === 'Escape') close(); };
+  ov.onclick = e => { if (e.target === ov || e.target.closest('.px')) close(); };
+  document.addEventListener('keydown', k1);
+  document.body.appendChild(ov);
+}
+
+let tt = null;
+function toast(h){ const t = $('#toast'); t.innerHTML = h; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2600); }
+route();
+</script>
+</body>
+</html>
