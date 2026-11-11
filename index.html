@@ -280,7 +280,7 @@ function codePage(want){
   <div class="err" id="le" hidden></div>
   <button class="go" id="lg">View my orders →</button>
   <div class="fine">Each Company Has Its Own Code And Can See Only Its Own Orders. Lost Your Code? Please Contact Your Sales Person.</div></form></div>`;
-  const v = document.querySelector('.login video'); v.controls = false; v.play && v.play().catch(() => {});
+  playVid(document.querySelector('.login video'));
   const inp = $('#lc'); inp.focus();
   inp.oninput = () => { const x = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9); inp.value = x.replace(/(.{3})(?=.)/g, '$1 '); $('#le').hidden = true; };
   $('#lf').onsubmit = async e => {
@@ -300,13 +300,21 @@ function codePage(want){
   };
 }
 const coName = k => (sessOf(k) || {}).name || k;
+// start a looping muted video reliably (also after Sign out, when the page is rebuilt)
+function playVid(v){
+  if (!v) return;
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.loop = true; v.controls = false;
+  const go = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+  if (v.readyState >= 2) go(); else { v.addEventListener('canplay', go, { once:true }); v.load(); }
+  setTimeout(() => { if (v.isConnected && v.paused) go(); }, 800);
+}
 function navHtml(key){
   return `<div class="nav"><a class="hm" href="#/${key}"><img src="${LOGO}" alt="BoxUp"></a><span class="x">×</span><span class="co">${esc(coName(key))}</span><span class="sp"></span>
     <a id="navHelp">Support</a><button class="out" id="out">Sign out</button></div>`;
 }
 function bindNav(key){
   $('#navHelp').onclick = () => supportPop(key);
-  $('#out').onclick = () => { dropSess(key); delete DATA[key]; delete META[key]; try { localStorage.removeItem(OKEY(key)); } catch(e){} location.hash = '#/'; route(); };
+  $('#out').onclick = () => { dropSess(key); delete DATA[key]; delete META[key]; try { localStorage.removeItem(OKEY(key)); } catch(e){} if (location.hash === '#/') route(); else location.hash = '#/'; };
 }
 
 /* ---------- company home ---------- */
@@ -328,7 +336,7 @@ function homePage(key){
     <div class="tbl" id="tbl"></div>
   </div><div class="foot">BoxUp Luxury Gifting · 4th Floor, No. 19/3, off Kanakapura Main Road, Bengaluru 560111</div>`;
   bindNav(key);
-  const v = $('#vid'); $('#vb').onclick = () => { if (v.paused) { v.play(); $('#vb').textContent = '❚❚ Pause video'; } else { v.pause(); $('#vb').textContent = '▶ Play video'; } };
+  const v = $('#vid'); playVid(v); $('#vb').onclick = () => { if (v.paused) { v.play(); $('#vb').textContent = '❚❚ Pause video'; } else { v.pause(); $('#vb').textContent = '▶ Play video'; } };
   $('#kp').onclick = e => { const b = e.target.closest('button'); if (!b) return; FILTER = FILTER === b.dataset.f ? 'all' : b.dataset.f; PAGE = 0; kpis(key); table(key); };
   $('#dl').onclick = () => report(key);
   $('#rf').onclick = () => { toast('Checking for updates…'); refresh(key, true); };
